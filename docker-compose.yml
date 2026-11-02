@@ -1,0 +1,56 @@
+name: banking-devops-platform
+
+services:
+  customer-service:
+    build:
+      context: .
+      dockerfile: banking-services/customer-service/Dockerfile
+    ports: ["8081:8081"]
+    environment:
+      SERVER_PORT: 8081
+    restart: unless-stopped
+
+  account-service:
+    build:
+      context: .
+      dockerfile: banking-services/account-service/Dockerfile
+    ports: ["8082:8082"]
+    environment:
+      SERVER_PORT: 8082
+    restart: unless-stopped
+
+  transaction-service:
+    build:
+      context: .
+      dockerfile: banking-services/transaction-service/Dockerfile
+    ports: ["8083:8083"]
+    environment:
+      SERVER_PORT: 8083
+    restart: unless-stopped
+
+  payment-service:
+    build:
+      context: .
+      dockerfile: banking-services/payment-service/Dockerfile
+    ports: ["8084:8084"]
+    environment:
+      SERVER_PORT: 8084
+    restart: unless-stopped
+
+  loan-service:
+    build:
+      context: .
+      dockerfile: banking-services/loan-service/Dockerfile
+    ports: ["8085:8085"]
+    environment:
+      SERVER_PORT: 8085
+    restart: unless-stopped
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: banking-services/notification-service/Dockerfile
+    ports: ["8086:8086"]
+    environment:
+      SERVER_PORT: 8086
+    restart: unless-stopped
