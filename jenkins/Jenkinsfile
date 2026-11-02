@@ -136,7 +136,7 @@ pipeline {
                         GITOPS_BRANCH="gitops/update-dev-${IMAGE_TAG}-${BUILD_NUMBER}"
                         git checkout -b "$GITOPS_BRANCH"
 
-                        IMAGE_TAG="$IMAGE_TAG" ./jenkins/update-gitops.sh
+                        IMAGE_TAG="$IMAGE_TAG" bash jenkins/update-gitops.sh
 
                         git diff --check
                         git diff -- kubernetes/overlays/dev/kustomization.yaml
