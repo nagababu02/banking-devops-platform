@@ -9,6 +9,7 @@ pipeline {
     environment {
         AWS_REGION = 'us-east-1'
         ECR_PREFIX = 'banking-devops'
+        GITHUB_REPO = 'nagababu02/banking-devops-platform'
     }
 
     options {
@@ -37,6 +38,8 @@ pipeline {
                 sh 'docker --version'
                 sh 'trivy --version'
                 sh 'aws --version'
+                sh 'python3 --version'
+                sh 'gh --version'
             }
         }
 
@@ -114,14 +117,53 @@ pipeline {
                 '''
             }
         }
+
+        stage('Create GitOps Promotion PR') {
+            when {
+                branch 'main'
+            }
+            steps {
+                withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+                    sh '''
+                        set -eu
+
+                        echo "$GITHUB_TOKEN" | gh auth login --with-token
+                        gh auth setup-git
+
+                        git config user.name "jenkins-gitops"
+                        git config user.email "jenkins-gitops@users.noreply.github.com"
+
+                        GITOPS_BRANCH="gitops/update-dev-${IMAGE_TAG}-${BUILD_NUMBER}"
+                        git checkout -b "$GITOPS_BRANCH"
+
+                        IMAGE_TAG="$IMAGE_TAG" bash jenkins/update-gitops.sh
+
+                        git diff --check
+                        git diff -- kubernetes/overlays/dev/kustomization.yaml
+                        git add kubernetes/overlays/dev/kustomization.yaml
+                        git commit -m "chore(gitops): promote banking services to ${IMAGE_TAG}"
+                        git push --set-upstream origin "$GITOPS_BRANCH"
+
+                        gh pr create \
+                          --repo "$GITHUB_REPO" \
+                          --base main \
+                          --head "$GITOPS_BRANCH" \
+                          --title "chore(gitops): promote ${IMAGE_TAG} to dev" \
+                          --body "Automated GitOps promotion from Jenkins CI.\n\nImage tag: ${IMAGE_TAG}\nSource commit: ${GIT_COMMIT}\n\nJenkins has already completed Maven tests, SonarQube quality gate, Trivy filesystem/IaC scans, Docker image builds, image scans, and ECR publishing.\n\nMerge this PR to update the dev Kustomize overlay. Argo CD will then reconcile the change into EKS."
+
+                        gh auth logout --hostname github.com || true
+                    '''
+                }
+            }
+        }
     }
 
     post {
         success {
-            echo "Banking platform CI completed. Image tag: ${IMAGE_TAG}"
+            echo "Banking platform CI/CD promotion completed. Image tag: ${IMAGE_TAG}"
         }
         failure {
-            echo 'Pipeline failed. Review Maven, SonarQube, Docker, or Trivy output.'
+            echo 'Pipeline failed. Review Maven, SonarQube, Docker, Trivy, ECR, or GitOps promotion output.'
         }
         always {
             cleanWs()
