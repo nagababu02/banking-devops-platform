@@ -7,6 +7,7 @@ This Terraform root provisions the first AWS platform foundation:
 - A single NAT Gateway for development egress (not multi-AZ highly available).
 - An Amazon EKS 1.36 cluster with managed private worker nodes.
 - Six Amazon ECR repositories with immutable tags, scan-on-push, encryption, and lifecycle policies.
+- A least-privilege IAM policy for Jenkins to push images to those ECR repositories.
 
 ## Prerequisites
 
@@ -32,6 +33,8 @@ terraform plan
 ```
 
 Review the complete plan, estimated cost, and account/region before running `terraform apply`. No AWS resources are created by the commands above.
+
+After a successful apply, attach the output policy ARN `jenkins_ecr_push_policy_arn` to the IAM role used by the Jenkins agent. The policy permits ECR authentication and image upload actions only against the six project repositories.
 
 After a successful apply:
 
