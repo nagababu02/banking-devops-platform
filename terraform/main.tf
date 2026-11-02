@@ -54,9 +54,13 @@ module "eks" {
   subnet_ids               = module.vpc.private_subnets
   control_plane_subnet_ids = module.vpc.private_subnets
 
-  endpoint_public_access = true
+  endpoint_private_access = true
+  endpoint_public_access  = true
   # Restrict this to your current public IP (/32) before applying outside a disposable lab.
   endpoint_public_access_cidrs = ["0.0.0.0/0"]
+
+  enabled_log_types                    = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
+  cloudwatch_log_group_retention_in_days = 30
 
   enable_cluster_creator_admin_permissions = true
   enable_irsa                              = true
