@@ -1,0 +1,37 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: banking
+resources:
+  - ../../base
+replicas:
+  - name: customer-service
+    count: 1
+  - name: account-service
+    count: 1
+  - name: transaction-service
+    count: 1
+  - name: payment-service
+    count: 1
+  - name: loan-service
+    count: 1
+  - name: notification-service
+    count: 1
+images:
+  - name: banking-devops/customer-service
+    newName: REPLACE_WITH_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/banking-devops/customer-service
+    newTag: dev
+  - name: banking-devops/account-service
+    newName: REPLACE_WITH_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/banking-devops/account-service
+    newTag: dev
+  - name: banking-devops/transaction-service
+    newName: REPLACE_WITH_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/banking-devops/transaction-service
+    newTag: dev
+  - name: banking-devops/payment-service
+    newName: REPLACE_WITH_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/banking-devops/payment-service
+    newTag: dev
+  - name: banking-devops/loan-service
+    newName: REPLACE_WITH_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/banking-devops/loan-service
+    newTag: dev
+  - name: banking-devops/notification-service
+    newName: REPLACE_WITH_ACCOUNT_ID.dkr.ecr.us-east-1.amazonaws.com/banking-devops/notification-service
+    newTag: dev

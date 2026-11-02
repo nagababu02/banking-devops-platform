@@ -49,3 +49,46 @@ banking-devops-platform/
 The project will be built incrementally. Application development comes first, followed by containerization, Kubernetes, AWS infrastructure, CI/CD, GitOps, monitoring, security, and production documentation.
 
 > This project is for DevOps/Cloud engineering demonstration and learning. It does not process real financial transactions or real customer funds.
+
+
+## Local Development
+
+Prerequisites: Git, Docker with the Compose plugin, and (for running Maven directly) JDK 21 and Maven 3.9+.
+
+Build and test all modules from the repository root:
+
+```bash
+mvn clean verify
+```
+
+Start all six services with Docker Compose:
+
+```bash
+docker compose up --build -d
+docker compose ps
+```
+
+Check service status endpoints:
+
+| Service | Status URL |
+|---|---|
+| Customer | http://localhost:8081/api/v1/customers/status |
+| Account | http://localhost:8082/api/v1/accounts/status |
+| Transaction | http://localhost:8083/api/v1/transactions/status |
+| Payment | http://localhost:8084/api/v1/payments/status |
+| Loan | http://localhost:8085/api/v1/loans/status |
+| Notification | http://localhost:8086/api/v1/notifications/status |
+
+Actuator health is available at `/actuator/health` on each service.
+
+Stop the local stack:
+
+```bash
+docker compose down
+```
+
+See [Local Development](docs/local-development.md) for details and troubleshooting.
+
+## Project Status
+
+See [Project Status](docs/project-status.md) for implemented components, validation gaps, and the remaining work required for an end-to-end deployment.

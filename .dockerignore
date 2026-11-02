@@ -1,0 +1,17 @@
+**/.git
+**/.idea
+**/.vscode
+**/target
+**/*.log
+.env
+.env.*
+secrets
+*.pem
+*.key
+README.md
+docs
+terraform
+kubernetes
+helm
+monitoring
+security

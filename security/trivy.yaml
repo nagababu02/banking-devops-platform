@@ -1,0 +1,17 @@
+# Trivy CLI configuration baseline.
+# Run from the repository root. Pin the Trivy version in CI for repeatability.
+scan:
+  scanners:
+    - vuln
+    - misconfig
+    - secret
+  skip-dirs:
+    - .git
+    - "**/target"
+
+severity:
+  - HIGH
+  - CRITICAL
+
+ignore-unfixed: true
+exit-code: 1

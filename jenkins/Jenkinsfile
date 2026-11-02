@@ -1,0 +1,130 @@
+pipeline {
+    agent any
+
+    tools {
+        jdk 'jdk21'
+        maven 'maven3'
+    }
+
+    environment {
+        AWS_REGION = 'us-east-1'
+        ECR_PREFIX = 'banking-devops'
+    }
+
+    options {
+        timestamps()
+        disableConcurrentBuilds()
+        buildDiscarder(logRotator(numToKeepStr: '20'))
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+                script {
+                    env.IMAGE_TAG = sh(
+                        script: 'git rev-parse --short=12 HEAD',
+                        returnStdout: true
+                    ).trim()
+                }
+            }
+        }
+
+        stage('Verify Toolchain') {
+            steps {
+                sh 'java -version'
+                sh 'mvn -version'
+                sh 'docker --version'
+                sh 'trivy --version'
+                sh 'aws --version'
+            }
+        }
+
+        stage('Build and Test') {
+            steps {
+                sh 'mvn -B clean verify'
+            }
+            post {
+                always {
+                    junit allowEmptyResults: true, testResults: '**/target/surefire-reports/*.xml'
+                }
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh 'mvn -B sonar:sonar -Dproject.settings=security/sonar-project.properties'
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 10, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        stage('Filesystem and IaC Scan') {
+            steps {
+                sh 'trivy fs --config security/trivy.yaml .'
+            }
+        }
+
+        stage('Build and Scan Images') {
+            steps {
+                sh '''
+                    set -eu
+                    for service in customer-service account-service transaction-service payment-service loan-service notification-service; do
+                      docker build \
+                        --file "banking-services/$service/Dockerfile" \
+                        --tag "$service:$IMAGE_TAG" \
+                        .
+                      trivy image \
+                        --ignore-unfixed \
+                        --severity HIGH,CRITICAL \
+                        --exit-code 1 \
+                        "$service:$IMAGE_TAG"
+                    done
+                '''
+            }
+        }
+
+        stage('Push Images to Amazon ECR') {
+            when {
+                branch 'main'
+            }
+            steps {
+                sh '''
+                    set -eu
+                    ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
+                    REGISTRY="$ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
+
+                    aws ecr get-login-password --region "$AWS_REGION" \
+                      | docker login --username AWS --password-stdin "$REGISTRY"
+
+                    for service in customer-service account-service transaction-service payment-service loan-service notification-service; do
+                      SOURCE_IMAGE="$service:$IMAGE_TAG"
+                      TARGET_IMAGE="$REGISTRY/$ECR_PREFIX/$service:$IMAGE_TAG"
+                      docker tag "$SOURCE_IMAGE" "$TARGET_IMAGE"
+                      docker push "$TARGET_IMAGE"
+                    done
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Banking platform CI completed. Image tag: ${IMAGE_TAG}"
+        }
+        failure {
+            echo 'Pipeline failed. Review Maven, SonarQube, Docker, or Trivy output.'
+        }
+        always {
+            cleanWs()
+        }
+    }
+}
