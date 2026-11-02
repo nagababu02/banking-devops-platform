@@ -88,3 +88,7 @@ docker compose down
 ```
 
 See [Local Development](docs/local-development.md) for details and troubleshooting.
+
+## Project Status
+
+See [Project Status](docs/project-status.md) for implemented components, validation gaps, and the remaining work required for an end-to-end deployment.
