@@ -1,0 +1,113 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: customer-service
+  namespace: banking
+  labels:
+    release: banking-monitoring
+spec:
+  namespaceSelector:
+    matchNames:
+      - banking
+  selector:
+    matchLabels:
+      app: customer-service
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: account-service
+  namespace: banking
+  labels:
+    release: banking-monitoring
+spec:
+  namespaceSelector:
+    matchNames:
+      - banking
+  selector:
+    matchLabels:
+      app: account-service
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: transaction-service
+  namespace: banking
+  labels:
+    release: banking-monitoring
+spec:
+  namespaceSelector:
+    matchNames:
+      - banking
+  selector:
+    matchLabels:
+      app: transaction-service
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: payment-service
+  namespace: banking
+  labels:
+    release: banking-monitoring
+spec:
+  namespaceSelector:
+    matchNames:
+      - banking
+  selector:
+    matchLabels:
+      app: payment-service
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: loan-service
+  namespace: banking
+  labels:
+    release: banking-monitoring
+spec:
+  namespaceSelector:
+    matchNames:
+      - banking
+  selector:
+    matchLabels:
+      app: loan-service
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 30s
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: notification-service
+  namespace: banking
+  labels:
+    release: banking-monitoring
+spec:
+  namespaceSelector:
+    matchNames:
+      - banking
+  selector:
+    matchLabels:
+      app: notification-service
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 30s
