@@ -67,6 +67,12 @@ pipeline {
             }
         }
 
+        stage('Filesystem and IaC Scan') {
+            steps {
+                sh 'trivy fs --config security/trivy.yaml .'
+            }
+        }
+
         stage('Build and Scan Images') {
             steps {
                 sh '''
