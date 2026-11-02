@@ -6,8 +6,9 @@ The base manifests define the six service Deployments and ClusterIP Services, a 
 
 1. Build and push each service image to the matching ECR repository.
 2. In `overlays/dev/kustomization.yaml`, replace `REPLACE_WITH_ACCOUNT_ID` with your AWS account ID.
-3. Confirm the EKS nodes can pull from ECR.
-4. Confirm your CNI supports Kubernetes NetworkPolicy enforcement. If it does not, install and configure a policy-capable CNI before relying on these policies.
+3. After Jenkins pushes images, change each `newTag: dev` to the matching 12-character Git commit tag printed by the successful pipeline. The ECR repositories use immutable tags; do not reuse a tag.
+4. Confirm the EKS nodes can pull from ECR.
+5. Confirm your CNI supports Kubernetes NetworkPolicy enforcement. If it does not, install and configure a policy-capable CNI before relying on these policies.
 
 ## Preview and apply
 
