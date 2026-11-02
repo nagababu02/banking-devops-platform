@@ -1,8 +1,7 @@
 FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /workspace
 COPY pom.xml ./pom.xml
-COPY banking-services/payment-service/pom.xml banking-services/payment-service/pom.xml
-COPY banking-services/payment-service/src banking-services/payment-service/src
+COPY banking-services/ banking-services/
 RUN mvn -B -pl banking-services/payment-service -am -DskipTests package
 FROM eclipse-temurin:21-jre
 WORKDIR /app
