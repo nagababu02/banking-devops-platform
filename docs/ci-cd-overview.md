@@ -7,8 +7,9 @@
 3. Run `mvn -B clean verify` across all six Maven modules and publish JUnit reports.
 4. Run SonarQube analysis using `security/sonar-project.properties`.
 5. Wait for the SonarQube quality gate; fail the pipeline if it is not passed.
-6. Build six Docker images from the repository root and fail on HIGH/CRITICAL Trivy image findings.
-7. On the `main` branch only, authenticate using the agent's AWS identity and push immutable commit-tagged images to ECR.
+6. Run a Trivy filesystem/IaC scan using `security/trivy.yaml`.
+7. Build six Docker images from the repository root and fail on HIGH/CRITICAL Trivy image findings.
+8. On the `main` branch only, authenticate using the agent's AWS identity and push immutable commit-tagged images to ECR.
 
 The pipeline does not yet deploy to EKS or update the GitOps repository. Those steps will be added after the image build and infrastructure stages are validated.
 
