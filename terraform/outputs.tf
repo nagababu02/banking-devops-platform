@@ -27,3 +27,8 @@ output "ecr_repository_urls" {
   description = "ECR repository URLs by service."
   value       = { for name, repo in aws_ecr_repository.services : name => repo.repository_url }
 }
+
+output "jenkins_ecr_push_policy_arn" {
+  description = "Attach this policy to the Jenkins agent role used for ECR image publishing."
+  value       = aws_iam_policy.jenkins_ecr_push.arn
+}
